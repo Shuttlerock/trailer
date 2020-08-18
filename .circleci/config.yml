@@ -1,0 +1,116 @@
+defaults: &defaults
+  working_directory: ~/shuttlerock_tracer
+  docker:
+    - image: circleci/ruby:2.6-node
+      environment:
+        RACK_ENV: test
+
+version: 2.1
+jobs:
+  checkout_code:
+    <<: *defaults
+    steps:
+      - checkout
+      - save_cache:
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - ~/shuttlerock_tracer
+
+  rspec_tests:
+    <<: *defaults
+    parallelism: 1
+    steps:
+      - restore_cache:
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache:
+          key: v1-gem-cache-{{ arch }}-{{ checksum "Gemfile" }}
+      - run: bundle --path vendor/bundle
+
+      - run:
+          name: RSpec
+          command: bundle exec rake spec
+
+      - store_artifacts:
+          path: coverage
+
+      - run:
+          name: Step for failed RSpec
+          command: bundle exec rspec --only-failures
+
+  rubocop_test:
+    <<: *defaults
+    parallelism: 1
+    steps:
+      - restore_cache:
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache:
+          key: v1-gem-cache-{{ arch }}-{{ checksum "Gemfile" }}
+      - run: bundle --path vendor/bundle
+      - run:
+          name: Rubocop
+          command: bundle exec rubocop
+
+  bundle_dependencies:
+    <<: *defaults
+    parallelism: 1
+    steps:
+      - restore_cache:
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache:
+          name: Restore bundler cache
+          keys:
+            - v1-gem-cache-{{ arch }}-{{ checksum "Gemfile" }}
+
+      - run:
+          name: bundler Install
+          command: bundle check --path vendor/bundle ||  bundle install --path vendor/bundle --jobs 4 --retry 3
+
+      - save_cache:
+          name: Store bundler cache
+          key: v1-gem-cache-{{ arch }}-{{ checksum "Gemfile" }}
+          paths:
+            - vendor/bundle
+
+  rake_bundle_audit:
+    <<: *defaults
+    parallelism: 1
+    steps:
+      - restore_cache:
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache:
+          key: v1-gem-cache-{{ arch }}-{{ checksum "Gemfile" }}
+      - run: bundle --path vendor/bundle
+      - run: bundle exec bundle-audit update
+      - run: bundle exec bundle-audit
+
+  rake_bundle_leak:
+    <<: *defaults
+    parallelism: 1
+    steps:
+      - restore_cache:
+          key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
+      - restore_cache:
+          key: v1-gem-cache-{{ arch }}-{{ checksum "Gemfile" }}
+      - run: bundle --path vendor/bundle
+      - run: bundle exec bundler-leak --update
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - checkout_code
+      - bundle_dependencies:
+          requires:
+            - checkout_code
+      - rspec_tests:
+          requires:
+            - bundle_dependencies
+      - rake_bundle_audit:
+          requires:
+            - bundle_dependencies
+      - rake_bundle_leak:
+          requires:
+            - bundle_dependencies
+      - rubocop_test:
+          requires:
+            - bundle_dependencies

@@ -2,25 +2,29 @@
 
 require 'aws-sdk-cloudwatchlogs'
 
-module Trailer::Destination
+module Trailer::Storage
   class CloudWatch
     # Constructor.
-    def initialize
+    def initialize(trace_id)
       @messages = []
+      @trace_id = trace_id
       connect!
     end
 
     # Queues the given hash for writing to CloudWatch.
     def write(data)
-      data[:host_name] = Trailer.config.host_name
-      data[:service_name] = Trailer.config.service_name
+      data[:host_name]    ||= Trailer.config.host_name
+      data[:service_name] ||= Trailer.config.service_name
+      data[:trace_id]     ||= trace_id
       @messages << {
         timestamp: (Time.now.utc.to_f.round(3) * 1000).to_i,
         message:   data.merge(host_name: Trailer.config.host_name).to_json,
-      }
+      }.compact
     end
 
     # Sends all of the queued messages to CloudWatch, and resets the messages queue.
+    #
+    # See https://stackoverflow.com/a/36901509
     def flush
       events = {
         log_group_name:  Trailer.config.application_name,
@@ -28,14 +32,15 @@ module Trailer::Destination
         log_events:      messages,
         sequence_token:  sequence_token,
       }
-      response = client.put_log_events(events)
+
+      response        = client.put_log_events(events)
       @sequence_token = response&.next_sequence_token
       @messages       = []
     end
 
     private
 
-    attr_accessor :client, :messages, :sequence_token
+    attr_accessor :client, :messages, :sequence_token, :trace_id
 
     # Create the log group, if it doesn't already exist.
     # Ideally we would paginate here in case the account has a lot of log groups.
@@ -56,12 +61,14 @@ module Trailer::Destination
         stream.log_stream_name == Trailer.config.application_name
       end
 
-      unless existing
-        client.create_log_stream(
-          log_group_name:  Trailer.config.application_name,
-          log_stream_name: Trailer.config.application_name,
-        )
-      end
+      puts existing
+
+      existing ||= client.create_log_stream(
+        log_group_name:  Trailer.config.application_name,
+        log_stream_name: Trailer.config.application_name,
+      )
+
+      @sequence_token = existing.upload_sequence_token
     rescue Aws::CloudWatchLogs::Errors::ResourceAlreadyExistsException
       # No need to do anything - probably caused by lack of pagination.
     end

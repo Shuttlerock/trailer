@@ -1,8 +1,18 @@
 # frozen_string_literal: true
 
+require 'shuttlerock_tracer/configuration'
 require 'shuttlerock_tracer/version'
+require 'shuttlerock_tracer/trace'
 
-module ShuttlerockTracer # rubocop:disable Style/ClassAndModuleChildren
+module ShuttlerockTracer
   class Error < StandardError; end
-  # Your code goes here...
+
+  class << self
+    attr_accessor :config
+  end
+
+  def self.configure
+    self.config ||= Configuration.new
+    yield(config) if block_given?
+  end
 end

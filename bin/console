@@ -10,5 +10,10 @@ require 'shuttlerock_tracer'
 # require "pry"
 # Pry.start
 
+begin
+  require 'dotenv/load'
+rescue LoadError; end
+ShuttlerockTracer.configure
+
 require 'irb'
 IRB.start(__FILE__)

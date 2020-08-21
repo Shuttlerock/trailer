@@ -4,10 +4,12 @@ require 'aws-sdk-cloudwatchlogs'
 
 module Trailer::Storage
   class CloudWatch
+    # Name of the storage backend.
+    NAME = 'cloud_watch'
+
     # Constructor.
-    def initialize(trace_id)
+    def initialize
       @messages = []
-      @trace_id = trace_id
       connect!
     end
 
@@ -15,7 +17,6 @@ module Trailer::Storage
     def write(data)
       data[:host_name]    ||= Trailer.config.host_name
       data[:service_name] ||= Trailer.config.service_name
-      data[:trace_id]     ||= trace_id
       @messages << {
         timestamp: (Time.now.utc.to_f.round(3) * 1000).to_i,
         message:   data.merge(host_name: Trailer.config.host_name).to_json,
@@ -26,6 +27,8 @@ module Trailer::Storage
     #
     # See https://stackoverflow.com/a/36901509
     def flush
+      return if messages.empty?
+
       events = {
         log_group_name:  Trailer.config.application_name,
         log_stream_name: Trailer.config.application_name,
@@ -40,7 +43,7 @@ module Trailer::Storage
 
     private
 
-    attr_accessor :client, :messages, :sequence_token, :trace_id
+    attr_accessor :client, :messages, :sequence_token
 
     # Create the log group, if it doesn't already exist.
     # Ideally we would paginate here in case the account has a lot of log groups.

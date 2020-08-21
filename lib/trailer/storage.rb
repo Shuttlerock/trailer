@@ -1,12 +1,20 @@
 # frozen_string_literal: true
 
-require 'active_support/inflector'
 require 'trailer/storage/cloud_watch'
 
 module Trailer::Storage
+  # The default storage backend to push traces to.
+  DEFAULT = Trailer::Storage::CloudWatch::NAME
+
   # Instantiates the storage backend with the given name, and gives it the trace ID.
-  def self.factory(name, trace_id)
-    klass = ActiveSupport::Inflector.classify("trailer/storage/#{name}")
-    ActiveSupport::Inflector.constantize(klass).new(trace_id)
+  def self.factory(name)
+    klass = case name.to_s
+            when Trailer::Storage::CloudWatch::NAME
+              Trailer::Storage::CloudWatch
+            else
+              raise Trailer::Error, "Unknown storage backend (#{name})"
+            end
+
+    klass.new
   end
 end

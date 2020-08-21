@@ -2,6 +2,7 @@
 
 require 'trailer/configuration'
 require 'trailer/recorder'
+require 'trailer/storage'
 require 'trailer/version'
 
 module Trailer
@@ -14,13 +15,18 @@ module Trailer
     def configure
       self.config ||= Configuration.new
       yield(config) if block_given?
+
+      raise Trailer::Error, 'Trailer is already configured' unless @recorder.nil?
+
+      # Instantiate a new recorder after configuration.
+      @storage = Trailer::Storage.factory(config.storage)
     end
 
-    # Returns a new client.
-    def new
-      # If we haven't configured anything yet, use the defaults.
-      self.config ||= Trailer::Configuration.new
-      Trailer::Recorder.new
+    # Returns the recorder instance.
+    def recorder
+      raise Trailer::Error, 'Trailer.configure must be run before recording' if @storage.nil?
+
+      Trailer::Recorder.new(@storage)
     end
   end
 end

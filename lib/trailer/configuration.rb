@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
-class Trailer::Configuration
-  # The default storage backend to push traces to.
-  DEFAULT_STORAGE = :cloud_watch
+require 'trailer/storage'
 
+class Trailer::Configuration
   attr_accessor :application_name,
                 :aws_access_key_id,
                 :aws_region,
@@ -18,7 +17,7 @@ class Trailer::Configuration
     @aws_access_key_id     = ENV['AWS_ACCESS_KEY_ID']
     @aws_secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']
     @aws_region            = ENV.fetch('AWS_REGION', 'us-east-1')
-    @storage               = DEFAULT_STORAGE
+    @storage               = Trailer::Storage::DEFAULT
     @host_name             = ENV['TRACER_HOST_NAME']
     @service_name          = ENV['TRACER_SERVICE_NAME']
   end

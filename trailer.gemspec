@@ -5,14 +5,15 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'trailer/version'
 
 Gem::Specification.new do |spec|
-  spec.name                  = 'trailer'
-  spec.version               = Trailer::VERSION
-  spec.authors               = ['Dave Perrett']
-  spec.email                 = ['dave@recurser.com']
-  spec.summary               = 'Distributed tracing for Shuttlerock services'
-  spec.description           = 'Provides a wrapper around AWS X-Ray for application tracing.'
-  spec.homepage              = 'https://github.com/Shuttlerock/trailer'
-  spec.required_ruby_version = '>= 2.6.0'
+  spec.name                          = 'shuttlerock_tracer'
+  spec.version                       = ShuttlerockTracer::VERSION
+  spec.authors                       = ['Dave Perrett']
+  spec.email                         = ['dave@recurser.com']
+  spec.summary                       = 'Distributed tracing for Shuttlerock services'
+  spec.description                   = 'Provides a framework for application tracing.'
+  spec.homepage                      = 'https://github.com/Shuttlerock/shuttlerock_tracer'
+  spec.required_ruby_version         = '>= 2.6.0'
+  spec.metadata['allowed_push_host'] = 'https://rubygems.org'
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.
@@ -22,6 +23,8 @@ Gem::Specification.new do |spec|
   spec.bindir        = 'exe'
   spec.executables   = spec.files.grep(%r{^exe/}) { |file| File.basename(file) }
   spec.require_paths = ['lib']
+
+  spec.add_dependency 'aws-sdk-cloudwatchlogs', '>= 1.34.0 '
 
   spec.add_development_dependency 'bundle-audit'
   spec.add_development_dependency 'bundler', '>= 1.17'

@@ -13,6 +13,7 @@ Gem::Specification.new do |spec|
   spec.description                   = 'Provides a framework for application tracing.'
   spec.homepage                      = 'https://github.com/Shuttlerock/trailer'
   spec.required_ruby_version         = '>= 2.6.0'
+  spec.licenses                      = ['MIT']
   spec.metadata['allowed_push_host'] = 'https://rubygems.org'
 
   # Specify which files should be added to the gem when it is released.
@@ -25,6 +26,8 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'aws-sdk-cloudwatchlogs', '>= 1.34.0 '
+  spec.add_dependency 'request_store', '>= 1.2.0 '
+  spec.add_dependency 'request_store-sidekiq', '~> 0.1'
 
   spec.add_development_dependency 'bundle-audit'
   spec.add_development_dependency 'bundler', '>= 1.17'

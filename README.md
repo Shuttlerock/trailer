@@ -22,10 +22,10 @@ Or install it yourself as:
 
 ## Usage
 
-Configure the gem in `config/initializers/shuttlerock_tracer.rb`:
+Configure the gem in `config/initializers/trailer.rb`:
 
 ```
-ShuttlerockTracer.configure do |config|
+Trailer.configure do |config|
   config.application_name      = 'shuttlerock'
   config.aws_access_key_id     = 'XXXXXXXXXXXXXXXXXXXX'
   config.aws_secret_access_key = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'

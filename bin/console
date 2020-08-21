@@ -13,7 +13,7 @@ require 'trailer'
 begin
   require 'dotenv/load'
 rescue LoadError; end
-ShuttlerockTracer.configure
+Trailer.configure
 
 require 'irb'
 IRB.start(__FILE__)

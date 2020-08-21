@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'shuttlerock_tracer/configuration'
-require 'shuttlerock_tracer/version'
-require 'shuttlerock_tracer/trace'
+require 'trailer/configuration'
+require 'trailer/version'
+require 'trailer/trace'
 
-module ShuttlerockTracer
+module Trailer
   class Error < StandardError; end
 
   class << self

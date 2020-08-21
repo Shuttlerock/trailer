@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
-require 'shuttlerock_tracer'
+require 'trailer'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

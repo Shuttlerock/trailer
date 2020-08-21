@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'bundler/setup'
-require 'shuttlerock_tracer'
+require 'trailer'
 
 # You can add fixtures and/or initialization code here to make experimenting
 # with your gem easier. You can also use a different console, if you like.
@@ -13,7 +13,7 @@ require 'shuttlerock_tracer'
 begin
   require 'dotenv/load'
 rescue LoadError; end
-ShuttlerockTracer.configure
+Trailer.configure
 
 require 'irb'
 IRB.start(__FILE__)

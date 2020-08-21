@@ -2,16 +2,16 @@
 
 lib = File.expand_path('lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'shuttlerock_tracer/version'
+require 'trailer/version'
 
 Gem::Specification.new do |spec|
-  spec.name                          = 'shuttlerock_tracer'
-  spec.version                       = ShuttlerockTracer::VERSION
+  spec.name                          = 'trailer'
+  spec.version                       = Trailer::VERSION
   spec.authors                       = ['Dave Perrett']
   spec.email                         = ['dave@recurser.com']
   spec.summary                       = 'Distributed tracing for Shuttlerock services'
   spec.description                   = 'Provides a framework for application tracing.'
-  spec.homepage                      = 'https://github.com/Shuttlerock/shuttlerock_tracer'
+  spec.homepage                      = 'https://github.com/Shuttlerock/trailer'
   spec.required_ruby_version         = '>= 2.6.0'
   spec.metadata['allowed_push_host'] = 'https://rubygems.org'
 

@@ -1,6 +1,6 @@
-# ShuttlerockTracer
+# Trailer
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/shuttlerock_tracer`. To experiment with that code, run `bin/console` for an interactive prompt.
+Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/trailer`. To experiment with that code, run `bin/console` for an interactive prompt.
 
 TODO: Delete this and the text above, and describe your gem
 
@@ -9,7 +9,7 @@ TODO: Delete this and the text above, and describe your gem
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'shuttlerock_tracer'
+gem 'trailer'
 ```
 
 And then execute:
@@ -18,14 +18,14 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install shuttlerock_tracer
+    $ gem install trailer
 
 ## Usage
 
-Configure the gem in `config/initializers/shuttlerock_tracer.rb`:
+Configure the gem in `config/initializers/trailer.rb`:
 
 ```
-ShuttlerockTracer.configure do |config|
+Trailer.configure do |config|
   config.application_name      = 'shuttlerock'
   config.aws_access_key_id     = 'XXXXXXXXXXXXXXXXXXXX'
   config.aws_secret_access_key = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
@@ -43,4 +43,4 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/shuttlerock_tracer.
+Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/trailer.

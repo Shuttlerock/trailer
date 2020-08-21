@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ShuttlerockTracer::Configuration
+class Trailer::Configuration
   # The default destination to push traces to.
   DEFAULT_DESTINATION = :cloud_watch
 

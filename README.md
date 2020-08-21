@@ -22,7 +22,18 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Configure the gem in `config/initializers/shuttlerock_tracer.rb`:
+
+```
+ShuttlerockTracer.configure do |config|
+  config.application_name      = 'shuttlerock'
+  config.aws_access_key_id     = 'XXXXXXXXXXXXXXXXXXXX'
+  config.aws_secret_access_key = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+  config.aws_region            = 'us-east-1' # Optional, defaults to 'us-east-1'
+  config.host_name             = 'web.1' # Optional
+  config.service_name          = 'studio'
+end
+```
 
 ## Development
 

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'trailer/concern'
 require 'trailer/configuration'
 require 'trailer/middleware/rack'
 require 'trailer/railtie' if defined?(Rails::Railtie)

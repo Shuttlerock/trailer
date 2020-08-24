@@ -14,6 +14,8 @@ class Trailer::Recorder
 
   # Create a new trace ID to link log entries.
   def start
+    raise Trailer::Error, 'finish() must be called before a new trace can be started' unless @trace_id.nil?
+
     # See https://github.com/aws/aws-xray-sdk-ruby/blob/1869ca5/lib/aws-xray-sdk/model/segment.rb#L26-L30
     @trace_id = %(1-#{Time.now.to_i.to_s(16)}-#{SecureRandom.hex(12)})
   end
@@ -23,6 +25,7 @@ class Trailer::Recorder
     raise Trailer::Error, 'start() must be called before write()' if @trace_id.nil?
 
     storage.write(data.merge(trace_id: trace_id))
+    @trace_id = nil
   end
 
   private

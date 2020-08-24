@@ -7,7 +7,7 @@ module Trailer::Middleware
     end
 
     def call(env)
-      RequestStore.store[:trailer] ||= Trailer.recorder
+      RequestStore.store[:trailer] ||= Trailer.new
       RequestStore.store[:trailer].start
       @app.call(env)
     rescue Exception => e # rubocop:disable Lint/RescueException

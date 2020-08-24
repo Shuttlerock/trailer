@@ -24,8 +24,8 @@ module Trailer
       @storage = Trailer::Storage.factory(config.storage)
     end
 
-    # Returns the recorder instance.
-    def recorder
+    # Returns a new recorder instance.
+    def new
       raise Trailer::Error, 'Trailer.configure must be run before recording' if @storage.nil?
 
       Trailer::Recorder.new(@storage)

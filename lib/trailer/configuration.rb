@@ -13,12 +13,12 @@ class Trailer::Configuration
 
   # Constructor.
   def initialize
-    @application_name      = ENV['TRACER_APPLICATION_NAME']
+    @application_name      = ENV['TRAILER_APPLICATION_NAME']
     @aws_access_key_id     = ENV['AWS_ACCESS_KEY_ID']
     @aws_secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']
     @aws_region            = ENV.fetch('AWS_REGION', 'us-east-1')
     @storage               = Trailer::Storage::DEFAULT
-    @host_name             = ENV['TRACER_HOST_NAME']
-    @service_name          = ENV['TRACER_SERVICE_NAME']
+    @host_name             = ENV['TRAILER_HOST_NAME']
+    @service_name          = ENV['TRAILER_SERVICE_NAME']
   end
 end

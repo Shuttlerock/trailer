@@ -8,6 +8,7 @@ AllCops:
   Exclude:
     - 'bin/**/*'
     - 'tmp/**/*'
+    - 'vendor/**/*'
 
 Layout/EmptyLines:
   Enabled: true

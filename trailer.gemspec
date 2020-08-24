@@ -25,8 +25,9 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |file| File.basename(file) }
   spec.require_paths = ['lib']
 
-  spec.add_dependency 'aws-sdk-cloudwatchlogs', '>= 1.34.0 '
-  spec.add_dependency 'request_store', '>= 1.2.0 '
+  spec.add_dependency 'aws-sdk-cloudwatchlogs', '>= 1.34.0'
+  spec.add_dependency 'concurrent-ruby', '>= 1.1.7'
+  spec.add_dependency 'request_store', '>= 1.2.0'
   spec.add_dependency 'request_store-sidekiq', '~> 0.1'
 
   spec.add_development_dependency 'bundle-audit'

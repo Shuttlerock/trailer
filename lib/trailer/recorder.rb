@@ -8,7 +8,7 @@ class Trailer::Recorder
 
   # Finish tracing, and flush storage.
   def finish
-    storage.flush
+    storage.async.flush
     @trace_id = nil
   end
 
@@ -24,8 +24,7 @@ class Trailer::Recorder
   def write(data)
     raise Trailer::Error, 'start() must be called before write()' if @trace_id.nil?
 
-    storage.write(data.merge(trace_id: trace_id))
-    @trace_id = nil
+    storage.async.write(data.merge(trace_id: trace_id))
   end
 
   private

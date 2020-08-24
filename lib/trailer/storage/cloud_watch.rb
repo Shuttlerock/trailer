@@ -1,9 +1,12 @@
 # frozen_string_literal: true
 
 require 'aws-sdk-cloudwatchlogs'
+require 'concurrent'
 
 module Trailer::Storage
   class CloudWatch
+    include Concurrent::Async
+
     # Name of the storage backend.
     NAME = 'cloud_watch'
 

@@ -1,8 +1,6 @@
 # Trailer
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/trailer`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Trailer provides a Ruby framework for tracing events in the context of a request or background job. It allows you to easily tag and log events with metadata, so that you can easily search later for e.g. all events and exceptions related to a particular order.
 
 ## Installation
 
@@ -44,17 +42,15 @@ end
 
 ### Plain Ruby
 
+Tracing consists of a `start`, a number of `write`s, and a `finish`:
+
 ```
 trail = Trailer.new
 trail.start
-
-# Do some operations
 ...
 order = Order.new(state: :open)
 order.save!
 trail.write(order_id: order.id, state: order.state)
-
-# Do some more operations
 ...
 order.update(state: :closed, price_cents: 1_000)
 trail.write(order_id: order.id, state: order.state, price: order.price_cents)
@@ -63,9 +59,11 @@ trail.write(order_id: order.id, state: order.state, price: order.price_cents)
 trail.finish
 ```
 
+Each call to `start` will create a unique trace ID, that will be persisted with each `write`, allowing you to e.g. search for all events related to a particular HTTP request. Data will not be persisted until `finish` is called. You can `start` and `finish` the same `Trailer` instance multiple times, as long as you `finish` the previous trace before you `start` a new one.
+
 ### Rails
 
-Trailer middleware will be automatically added to Rails for you. Trailer::Concern provides a `with_trail()` method to simplify the tracing of objects:
+`Trailer::Middleware::Rack` will be automatically added to Rails for you. `Trailer::Concern` provides a `with_trail()` method to simplify the tracing of objects:
 
 ```
 class PagesController < ApplicationController
@@ -74,8 +72,8 @@ class PagesController < ApplicationController
   def index
     book = Book.find(params[:id])
 
-    with_trail(:list_pages, book) do
-      expensive_operation(book)
+    @pages = with_trail(:list_pages, book) do
+      expensive_operation_to_list_pages(book)
     end
   end
 
@@ -91,7 +89,7 @@ class PagesController < ApplicationController
 end
 ```
 
-The `with_trail` method will trace an event with the given name (eg. `:destroy_page`), and tag the event with attributes pulled from the ActiveRecord instance, as well as the duration of the operation and a global `trace_id` for the request. You can customize which fields are used to tag the trace with the `config.auto_tag_fields` regex and / or the `config.tag_fields` array configuration options.
+The `with_trail` method will trace an event with the given name (e.g. `:destroy_page`), and tag the event with attributes pulled from the ActiveRecord instance, as well as the duration of the operation and a global `trace_id` for the request. You can customize which fields are used to tag the trace with the `config.auto_tag_fields` regex and / or the `config.tag_fields` array configuration options.
 
 You can provide your own tags to `with_trail` to augment the automated tags:
 
@@ -115,7 +113,6 @@ class ExpensiveService
 end
 ```
 
-
 ### No Rails?
 
 You can use the Middleware in any rack application. You'll have to add this somewhere:
@@ -126,7 +123,7 @@ use Trailer::Middleware::Rack
 
 ## Storage
 
-Currently the only supported storage backend is AWS CloudWatch Logs. New backends should:
+Currently the only provided storage backend is AWS CloudWatch Logs, but you can easily implement your own backend if necessary. New backends should:
 
 - Include [Concurrent::Async](https://ruby-concurrency.github.io/concurrent-ruby/master/Concurrent/Async.html) from [concurrent-ruby](https://github.com/ruby-concurrency/concurrent-ruby) in order to provide non-blocking writes.
 - Implement a `write` method that takes a hash as an argument.

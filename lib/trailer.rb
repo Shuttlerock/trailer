@@ -5,7 +5,6 @@ require 'trailer/configuration'
 require 'trailer/middleware/rack'
 require 'trailer/railtie' if defined?(Rails::Railtie)
 require 'trailer/recorder'
-require 'trailer/storage'
 require 'trailer/version'
 
 module Trailer
@@ -22,7 +21,7 @@ module Trailer
       raise Trailer::Error, 'Trailer is already configured' unless @recorder.nil?
 
       # Instantiate a new recorder after configuration.
-      @storage = Trailer::Storage.factory(config.storage)
+      @storage = config.storage.new
     end
 
     # Returns a new recorder instance.

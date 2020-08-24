@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'trailer/storage'
+require 'trailer/storage/cloud_watch'
 
 class Trailer::Configuration
   attr_accessor :application_name,
@@ -32,8 +32,8 @@ class Trailer::Configuration
     @host_name             = ENV['TRAILER_HOST_NAME']
     # The name of the service within the application.
     @service_name          = ENV['TRAILER_SERVICE_NAME']
-    # The name of the storage backend to use.
-    @storage               = Trailer::Storage::DEFAULT
+    # The storage backend class to use.
+    @storage               = Trailer::Storage::CloudWatch
     # Optional - When tracing ActiveRecord instances, we can tag our trace with these fields explicitly.
     @tag_fields            = %w[name]
   end

@@ -126,11 +126,32 @@ use Trailer::Middleware::Rack
 
 ## Storage
 
-Currently the only supported storage backend is AWS CloudWatch Logs. New backends should include [Concurrent::Async](https://ruby-concurrency.github.io/concurrent-ruby/master/Concurrent/Async.html) from [concurrent-ruby](https://github.com/ruby-concurrency/concurrent-ruby) in order to provide non-blocking writes.
+Currently the only supported storage backend is AWS CloudWatch Logs. New backends should:
+
+- Include [Concurrent::Async](https://ruby-concurrency.github.io/concurrent-ruby/master/Concurrent/Async.html) from [concurrent-ruby](https://github.com/ruby-concurrency/concurrent-ruby) in order to provide non-blocking writes.
+- Implement a `write` method that takes a hash as an argument.
+- Implement a `flush` method that persists the data.
+
+```
+class MyStorage
+  include Concurrent::Async
+
+  def write(data)
+    ...
+  end
+
+  def flush
+    ...
+  end
+end
+
+Trailer.configure do |config|
+  config.storage = MyStorage
+end
+```
 
 # Todo
 
-- Provide a class instead of a string when configuring the backend, so 3rd-party backends can easily be used.
 - Add Sidekiq middleware.
 - Catch and log exceptions.
 

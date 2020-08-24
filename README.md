@@ -151,6 +151,7 @@ end
 
 - Add Sidekiq middleware.
 - Catch and log exceptions.
+- Allow the trace ID to be set manually, in case we want to trace distributed systems.
 
 ## Development
 

@@ -18,8 +18,6 @@ module Trailer
       self.config ||= Configuration.new
       yield(config) if block_given?
 
-      raise Trailer::Error, 'Trailer is already configured' unless @recorder.nil?
-
       # Instantiate a new recorder after configuration.
       @storage = config.storage.new
     end

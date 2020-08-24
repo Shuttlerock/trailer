@@ -12,15 +12,13 @@ module Trailer::Concern
   #                                               specific, such as a URL, query, request, etc.
   #                                               (eg. 'Article#submit', http://example.com/articles/list).
   # @param tags     Hash                        - Extra tags which should be tracked (eg. { 'http.method' => 'GET' }).
-  def with_trail(event, resource, tags: {}, &block) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+  def with_trail(event, resource, tags: {}, &block) # rubocop:disable Metrics/AbcSize
     yield block and return unless Trailer.config.enabled
 
-    started_at        = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-    resource_name     = Trailer::Utility.resource_name(resource)
-    tags[:event]    ||= event
-    tags[:resource] ||= resource if resource.is_a?(String)
-    tags[:resource] ||= resource_name if resource.present?
-    tags[:resource] ||= 'unknown'
+    started_at      = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+    resource_name   = resource if resource.is_a?(String)
+    resource_name ||= Trailer::Utility.resource_name(resource) if resource.present?
+    resource_name ||= 'unknown'
 
     unless resource.is_a?(String)
       # Tag anything that looks like an ID / date etc for ActiveRecord instances.
@@ -44,7 +42,7 @@ module Trailer::Concern
     tags[:duration] = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at) * 1_000).ceil
 
     # Put the keys in alphabetical order, with the event and resource first.
-    sorted = tags.sort_by { |key, _value| [key.to_s == 'event' ? 0 : 1, key.to_s == 'resource' ? 0 : 1, key.to_s] }.to_h
+    sorted = { event: event, resource: resource_name }.merge(tags.sort_by { |key, _val| key.to_s }.to_h)
     RequestStore.store[:trailer].write(sorted)
   end
 end

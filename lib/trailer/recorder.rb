@@ -2,6 +2,8 @@
 
 class Trailer::Recorder
   # Constructor.
+  #
+  # @param storage [Object] A storage instance. See https://github.com/Shuttlerock/trailer#storage
   def initialize(storage)
     @storage = storage
   end
@@ -21,6 +23,8 @@ class Trailer::Recorder
   end
 
   # Write the given hash to storage.
+  #
+  # @param data [Hash] A key-value hash of trace data to write to storage.
   def write(data)
     raise Trailer::Error, 'start() must be called before write()' if @trace_id.nil?
 

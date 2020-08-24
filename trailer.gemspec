@@ -23,7 +23,13 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |file| File.basename(file) }
   spec.require_paths = ['lib']
 
+  spec.add_development_dependency 'bundle-audit'
   spec.add_development_dependency 'bundler', '>= 1.17'
+  spec.add_development_dependency 'bundler-leak'
+  spec.add_development_dependency 'dotenv'
   spec.add_development_dependency 'rake', '>= 12.3.3'
   spec.add_development_dependency 'rspec', '>= 3.0'
+  spec.add_development_dependency 'rubocop'
+  spec.add_development_dependency 'rubocop-performance'
+  spec.add_development_dependency 'rubocop-rspec'
 end

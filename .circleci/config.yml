@@ -1,5 +1,5 @@
 defaults: &defaults
-  working_directory: ~/shuttlerock_tracer
+  working_directory: ~/trailer
   docker:
     - image: circleci/ruby:2.6-node
       environment:
@@ -14,7 +14,7 @@ jobs:
       - save_cache:
           key: v1-repo-{{ .Environment.CIRCLE_SHA1 }}
           paths:
-            - ~/shuttlerock_tracer
+            - ~/trailer
 
   rspec_tests:
     <<: *defaults
@@ -48,7 +48,7 @@ jobs:
       - run: bundle --path vendor/bundle
       - run:
           name: Rubocop
-          command: bundle exec rubocop
+          command: bundle exec rubocop --config ~/trailer/.rubocop.yml
 
   bundle_dependencies:
     <<: *defaults

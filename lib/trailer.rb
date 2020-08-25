@@ -3,6 +3,7 @@
 require 'trailer/concern'
 require 'trailer/configuration'
 require 'trailer/middleware/rack'
+require 'trailer/middleware/sidekiq'
 require 'trailer/railtie' if defined?(Rails::Railtie)
 require 'trailer/recorder'
 require 'trailer/version'

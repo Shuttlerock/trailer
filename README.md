@@ -121,6 +121,32 @@ You can use the Middleware in any rack application. You'll have to add this some
 use Trailer::Middleware::Rack
 ```
 
+### Sidekiq
+
+If you are using Rails, `Trailer::Middleware::Sidekiq` will be automatically added to the sidekiq middle chain for you. You can trace operations using the standard `Trailer::Concern` method:
+
+```
+class AuditJob < ApplicationJob
+  include Trailer::Concern
+
+  def perform(user)
+    with_trail(:audit_user, user) do
+      expensive_operation()
+    end
+  end
+end
+```
+
+If you're' not using Rails, you'll need to add the Sidekiq middleware explicitly:
+
+```
+::Sidekiq.configure_server do |config|
+  config.server_middleware do |chain|
+    chain.add Trailer::Middleware::Sidekiq
+  end
+end
+```
+
 ## Storage
 
 Currently the only provided storage backend is AWS CloudWatch Logs, but you can easily implement your own backend if necessary. New backends should:
@@ -149,7 +175,6 @@ end
 
 # Todo
 
-- Add Sidekiq middleware.
 - Catch and log exceptions.
 - Allow the trace ID to be set manually, in case we want to trace distributed systems.
 

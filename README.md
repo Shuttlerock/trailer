@@ -26,19 +26,28 @@ Configure the gem in `config/initializers/trailer.rb`:
 
 ```
 Trailer.configure do |config|
-  # Required fields
-  config.application_name      = 'shuttlerock' # The global application or company name.
+  config.application_name      = 'shuttlerock'
   config.aws_access_key_id     = 'XXXXXXXXXXXXXXXXXXXX'
   config.aws_secret_access_key = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
-  config.service_name          = 'auth' # The name of the service within the application.
-
-  # Optional fields
-  config.auto_tag_fields       = /(_id|_at)$/.freeze                 # Optional - defaults to tag with any fields ending with '_id' or '_at'.
-  config.aws_region            = 'us-east-1'                         # Optional, defaults to 'us-east-1'.
-  config.host_name             = 'web.1'                             # Optional - the name of the individual host or server within the service.
-  config.tag_fields            = %w(name role state status type url) # Optional - When tracing ActiveRecord instances, we can tag our trace with these fields explicitly.
+  config.service_name          = 'auth'
 end
 ```
+
+Option                  | Required?                         | Default                        | Description
+------------------------|-----------------------------------|--------------------------------|-------------|
+`application_name`      | Yes                               |                                | The global application or company name. |
+`auto_tag_fields`       |                                   | `/(_id\|_at)$/`                | When tracing ActiveRecord instances, we can tag our trace with fields matching this regex. |
+`aws_access_key_id`     | Yes (if using CloudWatch storage) |                                | AWS access key with CloudWatch write permission. |
+`aws_region`            |                                   | `'us-east-1'`                  | The AWS region to log to. |
+`aws_secret_access_key` | Yes (if using CloudWatch storage) |                                | The AWS secret key. |
+`host_name`             |                                   |                                | The name of the individual host or server within the service. |
+`service_name`          | Yes                               |                                | The name of the service within the application. May consist of multiple hosts. |
+`storage`               |                                   | `Trailer::Storage::CloudWatch` | The storage class to use. |
+`tag_fields`            |                                   | `['name']`                     | When tracing ActiveRecord instances, tag the trace with these fields. |
+
+
+
+
 
 ### Plain Ruby
 

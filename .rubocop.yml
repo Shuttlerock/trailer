@@ -188,7 +188,7 @@ Style/CaseLikeIf:
 
 Style/ClassAndModuleChildren:
   Enabled:       true
-  EnforcedStyle: compact
+  EnforcedStyle: nested
 
 Style/Documentation:
   Enabled: false

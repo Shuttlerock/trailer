@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.version                       = Trailer::VERSION
   spec.authors                       = ['Dave Perrett']
   spec.email                         = ['dave@recurser.com']
-  spec.summary                       = 'Distributed tracing for Shuttlerock services'
-  spec.description                   = 'Provides a framework for application tracing.'
+  spec.summary                       = 'Application tracing for distributed services'
+  spec.description                   = 'Provides a framework for tracing events within a service, or across multiple services.'
   spec.homepage                      = 'https://github.com/Shuttlerock/trailer'
   spec.required_ruby_version         = '>= 2.6.0'
   spec.licenses                      = ['MIT']

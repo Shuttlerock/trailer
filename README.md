@@ -181,7 +181,31 @@ Trailer.configure do |config|
 end
 ```
 
-# Todo
+## Searching for traces in AWS CloudWatch
+
+CloudWatch allows you to search for specific attributes:
+
+- Search for a specific `order_id`: `{ $.order_id = "aaa" }`
+- Search for all records from a particular request or job: `{ $.trace_id = "1-5f44617e-6bcd7259689e5d303d4ad430" }`)
+- Search for multiple attributes: `{ $.order_id = "order-aaa" && $.duration = 1 }`
+- Search for one of several attributes: `{ $.order_id = "aaa" || $.order_id = "bbb" }`
+- Search for a specific user: `{ $.current_user_id = 1234 }`
+- Search for all records containing a particular attribute, regardless of its value: `{ $.duration = * }`
+
+Trailer provides some standard attributes that might be useful:
+
+Attribute      | Description
+---------------|-------------|
+`duration`     | The duration of the trace in milliseconds.
+`host_name`    | The (optional) host name specified during `Trailer.configure`.
+`service_name` | The service name specified during `Trailer.configure`.
+`trace_id`     | A unique ID identifying all records from a single request or Sidekiq job. This allows you to track all events within the context of a single request.
+
+You can also filter by partial wildcard, search nested objects, and much more - see [Filter and Pattern Syntax](https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/FilterAndPatternSyntax.html) for more information.
+
+![Searching CloudWatch](https://static.shuttlerock-cdn.com/staff/dave/trailer-gem/CloudWatch_Screenshot.png)
+
+## Todo
 
 - Allow the trace ID to be set manually, in case we want to trace distributed systems.
 

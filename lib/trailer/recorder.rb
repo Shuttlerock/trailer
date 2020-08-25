@@ -8,6 +8,13 @@ class Trailer::Recorder
     @storage = storage
   end
 
+  # Records the exception class and message on the current trace.
+  #
+  # @param err [Exception] The exception to record.
+  def add_exception(err)
+    write({ exception: err.class.name, message: err.message, trace: err.backtrace[0..9] })
+  end
+
   # Finish tracing, and flush storage.
   def finish
     storage.async.flush

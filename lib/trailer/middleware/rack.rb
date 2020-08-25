@@ -11,8 +11,7 @@ module Trailer::Middleware
       RequestStore.store[:trailer].start
       @app.call(env)
     rescue Exception => e # rubocop:disable Lint/RescueException
-      # TODO: store exceptions.
-      # RequestStore.store[:trailer].add_exception(err)
+      RequestStore.store[:trailer].add_exception(e)
       raise e
     ensure
       RequestStore.store[:trailer].finish

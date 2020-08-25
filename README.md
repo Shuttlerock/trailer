@@ -119,6 +119,8 @@ class ExpensiveService
 end
 ```
 
+The middleware will automatically trace exceptions as well, so you can see for a particular `trace_id` if anything went wrong.
+
 ### No Rails?
 
 You can use the Middleware in any rack application. You'll have to add this somewhere:
@@ -181,7 +183,6 @@ end
 
 # Todo
 
-- Catch and log exceptions.
 - Allow the trace ID to be set manually, in case we want to trace distributed systems.
 
 ## Development

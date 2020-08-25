@@ -40,14 +40,11 @@ Option                  | Required?                         | Default           
 `aws_access_key_id`     | Yes (if using CloudWatch storage) |                                | AWS access key with CloudWatch write permission. |
 `aws_region`            |                                   | `'us-east-1'`                  | The AWS region to log to. |
 `aws_secret_access_key` | Yes (if using CloudWatch storage) |                                | The AWS secret key. |
+`current_user_method`   |                                   |                                | Allows you provide the name of a method (eg. `:current_user`) that provides a user instance. Trailer will automatically tag the `id` of this user if the option is provided (disabled by default). |
 `host_name`             |                                   |                                | The name of the individual host or server within the service. |
 `service_name`          | Yes                               |                                | The name of the service within the application. May consist of multiple hosts. |
 `storage`               |                                   | `Trailer::Storage::CloudWatch` | The storage class to use. |
 `tag_fields`            |                                   | `['name']`                     | When tracing ActiveRecord instances, tag the trace with these fields. |
-
-
-
-
 
 ### Plain Ruby
 

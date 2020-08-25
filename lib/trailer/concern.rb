@@ -12,7 +12,7 @@ module Trailer::Concern
   #                                               specific, such as a URL, query, request, etc.
   #                                               (eg. 'Article#submit', http://example.com/articles/list).
   # @param tags     Hash                        - Extra tags which should be tracked (eg. { 'http.method' => 'GET' }).
-  def with_trail(event, resource, tags: {}, &block) # rubocop:disable Metrics/AbcSize
+  def with_trail(event, resource, tags: {}, &block) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
     yield block and return unless Trailer.config.enabled
 
     started_at      = Process.clock_gettime(Process::CLOCK_MONOTONIC)
@@ -34,6 +34,12 @@ module Trailer::Concern
       end
 
       tags["#{resource_name}_id"] ||= resource.id if resource.respond_to?(:id)
+    end
+
+    # Record the ID of the current user, if configured.
+    if Trailer.config.current_user_method && respond_to?(Trailer.config.current_user_method)
+      user = public_send(Trailer.config.current_user_method)
+      tags["#{Trailer.config.current_user_method}_id"] = user.id if user&.respond_to?(:id)
     end
 
     yield block

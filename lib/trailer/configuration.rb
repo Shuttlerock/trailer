@@ -8,6 +8,7 @@ class Trailer::Configuration
                 :aws_access_key_id,
                 :aws_region,
                 :aws_secret_access_key,
+                :current_user_method,
                 :enabled,
                 :storage,
                 :host_name,

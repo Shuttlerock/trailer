@@ -1,6 +1,6 @@
 # Trailer
 
-Trailer provides a Ruby framework for tracing events in the context of a request or background job. It allows you to easily tag and log events with metadata, so that you can easily search later for e.g. all events and exceptions related to a particular order.
+Trailer provides a Ruby framework for tracing events in the context of a request or background job. It allows you to tag and log events with metadata, so that you can search later for e.g. all events and exceptions related to a particular request.
 
 ## Installation
 
@@ -36,7 +36,7 @@ end
 Option                  | Required?                         | Default                        | Description
 ------------------------|-----------------------------------|--------------------------------|-------------|
 `application_name`      | Yes                               |                                | The global application or company name. This can also be configured with the `TRAILER_APPLICATION_NAME` environment variable. |
-`auto_tag_fields`       |                                   | `/(_id\|_at)$/`                | When tracing ActiveRecord instances, we can tag our trace with fields matching this regex. |
+`auto_tag_fields`       |                                   | `/(_id\|_at)$/`                | When tracing ActiveRecord instances, automatically tag the trace with fields matching this regex. |
 `aws_access_key_id`     | Yes (if using CloudWatch storage) |                                | AWS access key with CloudWatch write permission. |
 `aws_region`            |                                   | `'us-east-1'`                  | The AWS region to log to. |
 `aws_secret_access_key` | Yes (if using CloudWatch storage) |                                | The AWS secret key. |
@@ -71,7 +71,82 @@ Each call to `start` will create a unique trace ID, that will be persisted with 
 
 ### Rails
 
-`Trailer::Middleware::Rack` will be automatically added to Rails for you. `Trailer::Concern` provides a `with_trail()` method to simplify the tracing of objects:
+`Trailer::Middleware::Rack` will be automatically added to Rails for you. `Trailer::Concern` provides three methods to simplify the tracing of objects:
+
+-  `trace_method`
+-  `trace_class`
+-  `trace_event`
+
+The simplest way to start tracing is to include `Trailer::Concern` and wrap an operation with `trace_method`:
+
+```
+class PagesController < ApplicationController
+  include Trailer::Concern
+
+  def index
+    trace_method do
+      book = Book.find(params[:id])
+      expensive_operation_to_list_pages(book)
+    end
+  end
+end
+```
+
+Every time `index` is requested, Trailer will record that the method was called, and add some metadata:
+
+```
+{
+  "event":        "PagesController#index",
+  "duration":     112,
+  "environment":  "production",
+  "host_name":    "web.1",
+  "service_name": "studio-api",
+  "trace_id":     "1-5f465669-97185c244365a889fca9c6fc"
+}
+```
+
+This is not particularly useful by itself - you didn't record anything about the book whose pages you are `index`ing. You can pass the `Book` instance to improve visibility:
+
+```
+def index
+  book = Book.find(params[:id])
+
+  trace_method(book) do
+    expensive_operation_to_list_pages(book)
+  end
+end
+```
+
+Now every time `index` is requested you'll see `Book` metadata as well, such as the `book_id`, `author_id` and Rails timestamps:
+
+```
+{
+  "event":        "PagesController#index",
+  "book_id":      15,
+  "author_id":    12,
+  "created_at":   "2020-08-26 21:56:12 +0900",
+  "updated_at":   "2020-08-26 21:57:05 +0900",
+  ...
+}
+```
+
+The `auto_tag_fields` and `tag_fields` configuration options are used to decide which fields from the `Book` instance you collect (see [Configuration](#configuration) for more details). The resource provided doesn't have to be an `ActiveRecord` instance - a `Hash` will work as well.
+
+If you only want to record the class name rather than the class + method, use the `trace_class` method:
+
+```
+class ArchiveJob
+  def perform(book)
+    trace_class(book) do
+      book.archive!
+    end
+  end
+end
+```
+
+This will record `"event": "ArchiveJob"` instead of `"event": "ArchiveJob#perform"`. This is useful in situations where the method name doesn't provide any additional information (eg. background jobs always implement `perform`, and GraphQL resolvers implement `resolve`).
+
+The `trace_event` method is similar `trace_method` and `trace_class`, but it requires an event name to be passed as the first argument:
 
 ```
 class PagesController < ApplicationController
@@ -80,7 +155,7 @@ class PagesController < ApplicationController
   def index
     book = Book.find(params[:id])
 
-    @pages = with_trail(:list_pages, book) do
+    @pages = trace_event(:list_pages, book) do
       expensive_operation_to_list_pages(book)
     end
   end
@@ -88,7 +163,7 @@ class PagesController < ApplicationController
   def destroy
     page = Page.find(params[:id])
 
-    with_trail(:destroy_page, page) do
+    trace_event(:destroy_page, page) do
       page.destroy!
     end
 
@@ -97,12 +172,10 @@ class PagesController < ApplicationController
 end
 ```
 
-The `with_trail` method will trace an event with the given name (e.g. `:destroy_page`), and tag the event with attributes pulled from the ActiveRecord instance, as well as the duration of the operation and a global `trace_id` for the request. You can customize which fields are used to tag the trace with the `config.auto_tag_fields` regex and / or the `config.tag_fields` array configuration options.
-
-You can provide your own tags to `with_trail` to augment the automated tags:
+You can also provide your own tags to any of the trace methods to augment the automated tags:
 
 ```
-with_trail(:destroy_page, page, tags: { user: current_user.id, role: user.role }) do
+trace_event(:destroy_page, page, user: current_user.id, role: user.role) do
   page.destroy!
 end
 ```
@@ -113,15 +186,98 @@ The concern is not restricted to Rails controllers - it should work with any Rub
 class ExpensiveService
   include Trailer::Concern
 
-  def perform!(record)
-    with_trail(:expensive_performance, record) do
+  def calculate(record)
+    trace_event(:expensive_calculation, record) do
       ...
     end
   end
 end
 ```
 
-The middleware will automatically trace exceptions as well, so you can see for a particular `trace_id` if anything went wrong.
+If you have a method similar to Devise's [current_user](https://github.com/heartcombo/devise#controller-filters-and-helpers), you can automatically augment the trace with the ID of the user performing the action:
+
+```
+# config/initializers/trailer.rb
+Trailer.configure do |config|
+  config.current_user_method = :current_user
+end
+
+# app/controllers/pages_controller.rb
+class PagesController < ApplicationController
+  include Trailer::Concern
+
+  def index
+    book = Book.find(params[:id])
+
+    trace_method(book) do
+      expensive_operation_to_list_pages(book)
+    end
+  end
+
+  def current_user
+    User.find(session[:user_id])
+  end
+end
+```
+
+This will add the `current_user_id` to the trace metadata:
+
+```
+{
+  "event":           "PagesController#index",
+  "current_user_id": 26,
+  ...
+}
+```
+
+The middleware will automatically trace exceptions as well:
+
+```
+def index
+  book = Book.find(params[:id])
+
+  trace_method(book) do
+    expensive_operation_to_list_pages(book)
+  end
+
+  raise StandardError, 'Something went wrong!'
+end
+```
+
+This will record both the method call and the exception:
+
+```
+{
+  "event":    "PagesController#index",
+  "trace_id": "1-5f465669-97185c244365a889fca9c6fc",
+  ...
+}
+
+{
+  "exception": "StandardError",
+  "message":   "Something went wrong!",
+  "trace_id":  "1-5f465669-97185c244365a889fca9c6fc",
+  "trace":     [...]
+  ...
+}
+```
+
+The result of the block is returned, so you can assign a trace to a variable:
+
+```
+record = trace_method(params[:advert]) do
+  Advert.create(params[:advert])
+end
+```
+
+Similarly, you can use a trace as the return value of a method:
+
+```
+def add(a, b)
+  trace_method { a + b }
+end
+```
+
 
 ### No Rails?
 
@@ -133,21 +289,21 @@ use Trailer::Middleware::Rack
 
 ### Sidekiq
 
-If you are using Rails, `Trailer::Middleware::Sidekiq` will be automatically added to the sidekiq middle chain for you. You can trace operations using the standard `Trailer::Concern` method:
+If you are using Sidekiq, `Trailer::Middleware::Sidekiq` will be automatically added to the sidekiq middle chain for you. You can trace operations using the standard `Trailer::Concern` method:
 
 ```
 class AuditJob < ApplicationJob
   include Trailer::Concern
 
   def perform(user)
-    with_trail(:audit_user, user) do
+    trace_class(user) do
       expensive_operation()
     end
   end
 end
 ```
 
-If you're' not using Rails, you'll need to add the Sidekiq middleware explicitly:
+If you're not using Rails, you'll need to add the Sidekiq middleware explicitly:
 
 ```
 ::Sidekiq.configure_server do |config|
@@ -219,4 +375,4 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/trailer.
+Bug reports and pull requests are welcome on GitHub at https://github.com/shuttlerock/trailer.

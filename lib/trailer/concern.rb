@@ -53,7 +53,7 @@ module Trailer
       tags[:environment] ||= ENV['RAILS_ENV'] || ENV['RACK_ENV']
 
       # Put the keys in alphabetical order, with the event and resource first.
-      sorted = { event: event, resource: resource_name }.merge(tags.sort_by { |key, _val| key.to_s }.to_h)
+      sorted = { event: event, resource: resource_name }.merge(tags.sort_by { |key, _val| key.to_s }.to_h).compact
       RequestStore.store[:trailer].write(sorted)
 
       result

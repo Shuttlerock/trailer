@@ -14,7 +14,7 @@ module Trailer
     #                                               (eg. 'Article#submit', http://example.com/articles/list).
     # @param tags     Hash                        - Extra tags which should be tracked (eg. { 'http.method' => 'GET' }).
     def with_trail(event, resource, tags: {}, &block) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-      yield block and return unless Trailer.config.enabled
+      return yield block unless Trailer.config.enabled
 
       event           = Trailer::Utility.resource_name(event) unless event.is_a?(String)
       started_at      = Process.clock_gettime(Process::CLOCK_MONOTONIC)
@@ -44,7 +44,7 @@ module Trailer
         tags["#{Trailer.config.current_user_method}_id"] = user.id if user&.respond_to?(:id)
       end
 
-      yield block
+      result = yield block
 
       # Record how long the operation took, in milliseconds.
       tags[:duration] = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at) * 1_000).ceil
@@ -55,6 +55,8 @@ module Trailer
       # Put the keys in alphabetical order, with the event and resource first.
       sorted = { event: event, resource: resource_name }.merge(tags.sort_by { |key, _val| key.to_s }.to_h)
       RequestStore.store[:trailer].write(sorted)
+
+      result
     end
   end
 end

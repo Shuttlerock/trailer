@@ -35,8 +35,15 @@ module Trailer
     # @param data [Hash] A key-value hash of trace data to write to storage.
     def write(data)
       raise Trailer::Error, 'start() must be called before write()' if @trace_id.nil?
+      raise Trailer::Error, 'data must be an instance of Hash' unless data.respond_to?(:[]=)
+      raise Trailer::Error, 'could not convert data to JSON' unless data.respond_to?(:to_json)
 
-      storage.async.write(data.merge(trace_id: trace_id))
+      # Include some standard tags.
+      data[:environment]  ||= Trailer.config.environment
+      data[:host_name]    ||= Trailer.config.host_name
+      data[:service_name] ||= Trailer.config.service_name
+
+      storage.async.write(data.compact.merge(trace_id: trace_id))
     end
 
     private

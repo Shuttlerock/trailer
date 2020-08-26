@@ -11,6 +11,7 @@ module Trailer
                   :aws_secret_access_key,
                   :current_user_method,
                   :enabled,
+                  :environment,
                   :storage,
                   :host_name,
                   :service_name,
@@ -30,6 +31,8 @@ module Trailer
       @aws_secret_access_key = ENV['AWS_SECRET_ACCESS_KEY']
       # Allows tracing to be explicitly disabled.
       @enabled               = true
+      # The environment that the application is running (eg. 'production', 'test').
+      @environment           = ENV['TRAILER_ENV'] || ENV['RAILS_ENV'] || ENV['RACK_ENV']
       # Optional - the name of the individual host or server within the service.
       @host_name             = ENV['TRAILER_HOST_NAME']
       # The name of the service within the application.

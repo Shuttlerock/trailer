@@ -35,15 +35,16 @@ end
 
 Option                  | Required?                         | Default                        | Description
 ------------------------|-----------------------------------|--------------------------------|-------------|
-`application_name`      | Yes                               |                                | The global application or company name. |
+`application_name`      | Yes                               |                                | The global application or company name. This can also be configured with the `TRAILER_APPLICATION_NAME` environment variable. |
 `auto_tag_fields`       |                                   | `/(_id\|_at)$/`                | When tracing ActiveRecord instances, we can tag our trace with fields matching this regex. |
 `aws_access_key_id`     | Yes (if using CloudWatch storage) |                                | AWS access key with CloudWatch write permission. |
 `aws_region`            |                                   | `'us-east-1'`                  | The AWS region to log to. |
 `aws_secret_access_key` | Yes (if using CloudWatch storage) |                                | The AWS secret key. |
 `current_user_method`   |                                   |                                | Allows you provide the name of a method (eg. `:current_user`) that provides a user instance. Trailer will automatically tag the `id` of this user if the option is provided (disabled by default). |
 `enabled`               |                                   | `true`                         | Allows tracing to be conditionally disabled. |
-`host_name`             |                                   |                                | The name of the individual host or server within the service. |
-`service_name`          | Yes                               |                                | The name of the service within the application. May consist of multiple hosts. |
+`environment`           |                                   |                                | The environment that the application is running (eg. `production`, `test`). This can also be configured with the `TRAILER_ENV`, `RAILS_ENV` or `RACK_ENV` environment variables. |
+`host_name`             |                                   |                                | The name of the individual host or server within the service. This can also be configured with the `TRAILER_HOST_NAME` environment variable. |
+`service_name`          | Yes                               |                                | The name of the service within the application. This can also be configured with the `TRAILER_SERVICE_NAME` environment variable. |
 `storage`               |                                   | `Trailer::Storage::CloudWatch` | The storage class to use. |
 `tag_fields`            |                                   | `['name']`                     | When tracing ActiveRecord instances, tag the trace with these fields. |
 

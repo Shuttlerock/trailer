@@ -20,8 +20,6 @@ module Trailer
       #
       # @param data [Hash] A key-value hash of trace data to write to storage.
       def write(data)
-        data[:host_name]    ||= Trailer.config.host_name
-        data[:service_name] ||= Trailer.config.service_name
         @messages << {
           timestamp: (Time.now.utc.to_f.round(3) * 1000).to_i,
           message:   data.to_json,

@@ -8,14 +8,16 @@ module Trailer
       end
 
       def call(env)
-        RequestStore.store[:trailer] ||= Trailer.new
-        RequestStore.store[:trailer].start
+        if Trailer.enabled?
+          RequestStore.store[:trailer] ||= Trailer.new
+          RequestStore.store[:trailer].start
+        end
         @app.call(env)
       rescue Exception => e # rubocop:disable Lint/RescueException
-        RequestStore.store[:trailer].add_exception(e)
+        RequestStore.store[:trailer].add_exception(e) if Trailer.enabled?
         raise e
       ensure
-        RequestStore.store[:trailer].finish
+        RequestStore.store[:trailer].finish if Trailer.enabled?
       end
     end
   end

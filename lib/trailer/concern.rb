@@ -14,7 +14,7 @@ module Trailer
     #                                               (eg. 'Article#submit', http://example.com/articles/list).
     # @param tags     Hash                        - Extra tags which should be tracked (eg. { 'http.method' => 'GET' }).
     def with_trail(event, resource, tags: {}, &block) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-      return yield block unless Trailer.config.enabled
+      return yield block unless Trailer.enabled?
 
       event           = Trailer::Utility.resource_name(event) unless event.is_a?(String)
       started_at      = Process.clock_gettime(Process::CLOCK_MONOTONIC)

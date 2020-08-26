@@ -20,11 +20,18 @@ module Trailer
       yield(config) if block_given?
 
       # Instantiate a new recorder after configuration.
-      @storage = config.storage.new
+      @storage = config.storage.new if enabled?
+    end
+
+    # Returns true if tracing is enabled, false otherwise.
+    def enabled?
+      config&.enabled == true
     end
 
     # Returns a new recorder instance.
     def new
+      return unless enabled?
+
       raise Trailer::Error, 'Trailer.configure must be run before recording' if @storage.nil?
 
       Trailer::Recorder.new(@storage)

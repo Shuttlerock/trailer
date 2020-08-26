@@ -40,8 +40,8 @@ module Trailer
       tags["#{resource_name}_id"] ||= resource.id if resource.respond_to?(:id)
 
       # Record the ID of the current user, if configured.
-      if Trailer.config.current_user_method && respond_to?(Trailer.config.current_user_method)
-        user = public_send(Trailer.config.current_user_method)
+      if Trailer.config.current_user_method && respond_to?(Trailer.config.current_user_method, true)
+        user = send(Trailer.config.current_user_method)
         tags["#{Trailer.config.current_user_method}_id"] = user.id if user&.respond_to?(:id)
       end
 

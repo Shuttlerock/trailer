@@ -49,6 +49,9 @@ module Trailer
       # Record how long the operation took, in milliseconds.
       tags[:duration] = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at) * 1_000).ceil
 
+      # Record the environment.
+      tags[:environment] ||= ENV['RAILS_ENV'] || ENV['RACK_ENV']
+
       # Put the keys in alphabetical order, with the event and resource first.
       sorted = { event: event, resource: resource_name }.merge(tags.sort_by { |key, _val| key.to_s }.to_h)
       RequestStore.store[:trailer].write(sorted)

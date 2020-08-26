@@ -11,8 +11,8 @@ module Trailer
     #                                               The resource being operated on, or its name. Usually domain-specific, such as a model
     #                                               instance, query, etc (eg. current_user, 'Article#submit', 'http://example.com/articles').
     # @param tags     Hash                        - Extra tags which should be tracked (eg. { method: 'GET' }).
-    def with_trail(event, resource, tags: {}, &block) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-      return yield block unless Trailer.enabled?
+    def with_trail(event, resource, **tags) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
+      return yield unless Trailer.enabled?
 
       event           = Trailer::Utility.resource_name(event) unless event.is_a?(String)
       resource_name   = resource if resource.is_a?(String)
@@ -47,7 +47,7 @@ module Trailer
 
       # Record how long the operation takes, in milliseconds.
       started_at      = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-      result          = yield block
+      result          = yield
       tags[:duration] = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at) * 1_000).ceil
 
       # Put the keys in alphabetical order, with the event and resource first.

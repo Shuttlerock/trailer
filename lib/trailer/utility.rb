@@ -51,7 +51,9 @@ module Trailer
       #
       # @param resource [Object] The resource instance to derive a name for.
       def resource_name(resource)
-        underscore(demodulize(resource.class.name))
+        return resource unless resource.respond_to?(:name)
+
+        underscore(demodulize(resource.name))
       end
     end
   end

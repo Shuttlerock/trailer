@@ -16,9 +16,10 @@ module Trailer
     def with_trail(event, resource, tags: {}, &block) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       yield block and return unless Trailer.config.enabled
 
+      event           = Trailer::Utility.resource_name(event) unless event.is_a?(String)
       started_at      = Process.clock_gettime(Process::CLOCK_MONOTONIC)
       resource_name   = resource if resource.is_a?(String)
-      resource_name ||= Trailer::Utility.resource_name(resource) if resource.present?
+      resource_name ||= Trailer::Utility.resource_name(resource.class) if resource.present?
       resource_name ||= 'unknown'
 
       unless resource.is_a?(String)

@@ -10,5 +10,10 @@ require 'trailer'
 # require "pry"
 # Pry.start
 
+begin
+  require 'dotenv/load'
+rescue LoadError; end
+Trailer.configure
+
 require 'irb'
 IRB.start(__FILE__)

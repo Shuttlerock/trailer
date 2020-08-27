@@ -8,6 +8,7 @@ AllCops:
   Exclude:
     - 'bin/**/*'
     - 'tmp/**/*'
+    - 'vendor/**/*'
 
 Layout/EmptyLines:
   Enabled: true
@@ -90,7 +91,7 @@ Metrics/ClassLength:
 
 Metrics/CyclomaticComplexity:
   Enabled: true
-  Max:     15
+  Max:     20
 
 Metrics/MethodLength:
   Enabled:       true
@@ -187,7 +188,7 @@ Style/CaseLikeIf:
 
 Style/ClassAndModuleChildren:
   Enabled:       true
-  EnforcedStyle: compact
+  EnforcedStyle: nested
 
 Style/Documentation:
   Enabled: false

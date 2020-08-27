@@ -10,8 +10,8 @@ module Trailer
 
       # Constructor.
       def initialize
-        @messages = []
-        @client   = Aws::CloudWatchLogs::Client.new(region: Trailer.config.aws_region, credentials: credentials)
+        self.messages = []
+        self.client   = Aws::CloudWatchLogs::Client.new(region: Trailer.config.aws_region, credentials: credentials)
         ensure_log_group
         ensure_log_stream
       end
@@ -20,9 +20,9 @@ module Trailer
       #
       # @param data [Hash] A key-value hash of trace data to write to storage.
       def write(data)
-        @messages << {
+        messages << {
           timestamp: (Time.now.utc.to_f.round(3) * 1000).to_i,
-          message:   data.to_json,
+          message:   data&.to_json,
         }.compact
       end
 
@@ -39,13 +39,13 @@ module Trailer
           sequence_token:  sequence_token,
         }
 
-        response        = client.put_log_events(events)
-        @sequence_token = response&.next_sequence_token
-        @messages       = []
+        response            = client.put_log_events(events)
+        self.sequence_token = response&.next_sequence_token
+        self.messages       = []
       rescue Aws::CloudWatchLogs::Errors::InvalidSequenceTokenException
         # Only one client at a time can write to the log. If another client has written before we get a chance,
         # the sequence token is invalidated, and we need to get a new one.
-        @sequence_token = log_stream[:upload_sequence_token]
+        self.sequence_token = log_stream[:upload_sequence_token]
         retry
       end
 
@@ -74,7 +74,7 @@ module Trailer
       # Ideally we would paginate here in case the account has a lot of log streams.
       def ensure_log_stream
         if (existing = log_stream)
-          @sequence_token = existing.upload_sequence_token
+          self.sequence_token = existing.upload_sequence_token
         else
           client.create_log_stream(
             log_group_name:  Trailer.config.application_name,

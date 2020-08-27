@@ -27,9 +27,8 @@ module Trailer
           end
         elsif resource.respond_to?(:to_h)
           # This handles other types of data, such as GraphQL input objects.
-          stringified = resource.to_h.stringify_keys
-          stringified.each_key do |key|
-            tags[key] ||= stringified[key] if key.to_s.match?(Trailer.config.auto_tag_fields) || Trailer.config.tag_fields.include?(key)
+          resource.to_h.stringify_keys.each do |key, value|
+            tags[key] ||= value if key.to_s.match?(Trailer.config.auto_tag_fields) || Trailer.config.tag_fields.include?(key)
           end
         end
 

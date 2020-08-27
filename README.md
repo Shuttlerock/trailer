@@ -339,6 +339,35 @@ Trailer.configure do |config|
 end
 ```
 
+## CloudWatch Permissions
+
+The AWS account needs the following CloudWatch Logs permissions:
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogStream",
+                "logs:DescribeLogGroups",
+                "logs:DescribeLogStreams",
+                "logs:CreateLogGroup",
+                "logs:PutLogEvents"
+            ],
+            "Resource": [
+                "arn:aws:logs:us-east-1:XXXXXXXXXXXX:log-group:my-log-group-name",
+                "arn:aws:logs:us-east-1:XXXXXXXXXXXX:log-group:my-log-group-name:log-stream:my-log-stream-name"
+            ]
+        }
+    ]
+}
+```
+
+The ARNs in the `Resource` section are for demonstration purposes only - substitute your own, or use `"Resource": "*"` to allow global access.
+
 ## Searching for traces in AWS CloudWatch
 
 CloudWatch allows you to search for specific attributes:

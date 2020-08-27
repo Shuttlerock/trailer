@@ -1,3 +1,6 @@
+[![CircleCI](https://circleci.com/gh/Shuttlerock/trailer/tree/master.svg?style=shield)](https://circleci.com/gh/Shuttlerock/workflows/trailer/tree/master)
+[![Gem Version](https://badge.fury.io/rb/trailer.svg)](https://badge.fury.io/rb/trailer)
+
 # Trailer
 
 Trailer provides a Ruby framework for tracing events in the context of a request or background job. It allows you to tag and log events with metadata, so that you can search later for e.g. all events and exceptions related to a particular request.

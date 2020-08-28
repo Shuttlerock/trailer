@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 require 'bundler/setup'
+require 'request_store'
 require 'trailer'
+require 'trailer/storage/null'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
@@ -12,5 +14,13 @@ RSpec.configure do |config|
 
   config.expect_with :rspec do |cnf|
     cnf.syntax = :expect
+  end
+
+  config.before do
+    Trailer.configure do |cnf|
+      cnf.enabled = true
+      cnf.storage = Trailer::Storage::Null
+    end
+    RequestStore.store[:trailer] = nil
   end
 end

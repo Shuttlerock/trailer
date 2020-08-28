@@ -14,11 +14,12 @@ module Trailer
     def trace_event(event, resource = nil, **tags, &block) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
       return yield block unless Trailer.enabled?
 
-      event = Trailer::Utility.resource_name(event) unless event.is_a?(String)
+      event = Trailer::Utility.resource_name(event) unless event.is_a?(String) || event.is_a?(Symbol)
 
       unless resource.nil?
-        resource_name   = resource if resource.is_a?(String)
+        resource_name   = resource if resource.is_a?(String) || resource.is_a?(Symbol)
         resource_name ||= Trailer::Utility.resource_name(resource)
+        resource_name ||= 'unknown'
 
         # If column_names() is available, we are probably looking at an ActiveRecord instance.
         if resource.class.respond_to?(:column_names)
@@ -27,7 +28,7 @@ module Trailer
           end
         elsif resource.respond_to?(:to_h)
           # This handles other types of data, such as GraphQL input objects.
-          resource.to_h.stringify_keys.each do |key, value|
+          resource.to_h.transform_keys(&:to_s).each do |key, value|
             tags[key] ||= value if key.to_s.match?(Trailer.config.auto_tag_fields) || Trailer.config.tag_fields.include?(key)
           end
         end
@@ -53,6 +54,7 @@ module Trailer
 
       # Put the keys in alphabetical order, with the event and resource first.
       sorted = { event: event, resource: resource_name }.merge(tags.sort_by { |key, _val| key.to_s }.to_h)
+      sorted.transform_keys!(&:to_sym)
       RequestStore.store[:trailer].write(sorted)
 
       result

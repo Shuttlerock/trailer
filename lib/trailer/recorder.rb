@@ -36,7 +36,6 @@ module Trailer
     def write(data)
       raise Trailer::Error, 'start() must be called before write()' if @trace_id.nil?
       raise Trailer::Error, 'data must be an instance of Hash' unless data.is_a?(Hash)
-      raise Trailer::Error, 'could not convert data to JSON' unless data.respond_to?(:to_json)
 
       # Include some standard tags.
       data[:environment]  ||= Trailer.config.environment

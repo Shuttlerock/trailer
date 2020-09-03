@@ -14,8 +14,9 @@ module Trailer
                   :environment,
                   :storage,
                   :host_name,
-                  :service_name,
-                  :tag_fields
+                  :service_name
+
+    attr_reader :tag_fields
 
     # Constructor.
     def initialize
@@ -40,7 +41,12 @@ module Trailer
       # The storage backend class to use.
       @storage               = Trailer::Storage::CloudWatch
       # Optional - When tracing ActiveRecord instances, we can tag our trace with these fields explicitly.
-      @tag_fields            = %w[name]
+      @tag_fields            = %i[name]
+    end
+
+    # Make sure we store tag_fields as symbols for consistency.
+    def tag_fields=(fields)
+      @tag_fields = Array(fields).flatten.map(&:to_sym)
     end
   end
 end

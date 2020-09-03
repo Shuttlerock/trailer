@@ -16,16 +16,6 @@ module Trailer
         ensure_log_stream
       end
 
-      # Queues the given hash for writing to CloudWatch.
-      #
-      # @param data [Hash] A key-value hash of trace data to write to storage.
-      def write(data)
-        messages << {
-          timestamp: (Time.now.utc.to_f.round(3) * 1000).to_i,
-          message:   data&.to_json,
-        }.compact
-      end
-
       # Sends all of the queued messages to CloudWatch, and resets the messages queue.
       #
       # See https://stackoverflow.com/a/36901509
@@ -47,6 +37,18 @@ module Trailer
         # the sequence token is invalidated, and we need to get a new one.
         self.sequence_token = log_stream[:upload_sequence_token]
         retry
+      end
+
+      # Queues the given hash for writing to CloudWatch.
+      #
+      # @param data [Hash] A key-value hash of trace data to write to storage.
+      def write(data)
+        return if data.empty?
+
+        messages << {
+          timestamp: (Time.now.utc.to_f.round(3) * 1000).to_i,
+          message:   data&.to_json,
+        }.compact
       end
 
       private

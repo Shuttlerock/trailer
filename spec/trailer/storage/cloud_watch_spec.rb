@@ -107,5 +107,11 @@ RSpec.describe Trailer::Storage::CloudWatch do
       subject.write(data)
       expect(subject.send(:messages)).to match [{ message: data.to_json, timestamp: an_instance_of(Integer) }]
     end
+
+    it 'does nothing if the message is empty' do
+      expect(subject.send(:messages)).to be_empty
+      subject.write([])
+      expect(subject.send(:messages)).to be_empty
+    end
   end
 end

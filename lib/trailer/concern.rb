@@ -28,8 +28,8 @@ module Trailer
           end
         elsif resource.respond_to?(:to_h)
           # This handles other types of data, such as GraphQL input objects.
-          resource.to_h.transform_keys(&:to_s).each do |key, value|
-            tags[key] ||= value if key.to_s.match?(Trailer.config.auto_tag_fields) || Trailer.config.tag_fields.include?(key)
+          resource.to_h.transform_keys(&:to_sym).each do |key, value|
+            tags[key] ||= value if key.match?(Trailer.config.auto_tag_fields) || Trailer.config.tag_fields.include?(key)
           end
         end
 

@@ -43,6 +43,8 @@ module Trailer
       #
       # @param data [Hash] A key-value hash of trace data to write to storage.
       def write(data)
+        return if data.empty?
+
         messages << {
           timestamp: (Time.now.utc.to_f.round(3) * 1000).to_i,
           message:   data&.to_json,

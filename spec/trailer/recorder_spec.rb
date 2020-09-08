@@ -21,20 +21,35 @@ RSpec.describe Trailer::Recorder do
   end
 
   describe '#add_exception' do
-    it 'writes the exception to storage' do
-      err       = StandardError.new('something went wrong')
+    let(:err)      { StandardError.new('something went wrong') }
+    let(:expected) do
+      {
+        environment:  'test',
+        exception:    StandardError.name,
+        host_name:    'web.1',
+        service_name: 'studio',
+        message:      err.message,
+        trace:        err.backtrace,
+        trace_id:     trace_id,
+      }
+    end
+
+    before do
+      allow(storage).to receive(:write)
       backtrace = ['line one']
       allow(err).to receive(:backtrace).and_return(backtrace)
-      allow(storage).to receive(:write)
+    end
+
+    it 'writes the exception to storage' do
       subject.add_exception(err)
-      expected = { environment:  'test',
-                   exception:    'StandardError',
-                   host_name:    'web.1',
-                   service_name: 'studio',
-                   message:      'something went wrong',
-                   trace:        backtrace,
-                   trace_id:     trace_id }
       expect(storage).to have_received(:write).with(expected)
+    end
+
+    it 'includes tags that have been discovered so far' do
+      subject.write(order_id: 5)
+      subject.write(order_id: 6, user_id: 7)
+      subject.add_exception(err)
+      expect(storage).to have_received(:write).with(expected.merge(order_id: 6, user_id: 7))
     end
   end
 

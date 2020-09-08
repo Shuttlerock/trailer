@@ -13,13 +13,14 @@ module Trailer
     #
     # @param err [Exception] The exception to record.
     def add_exception(err)
-      write({ exception: err.class.name, message: err.message, trace: err.backtrace[0..9] })
+      write(tags.merge(exception: err.class.name, message: err.message, trace: Array(err.backtrace)[0..9]))
     end
 
     # Finish tracing, and flush storage.
     def finish
       storage.async.flush
       @trace_id = nil
+      @tags     = {}
     end
 
     # Create a new trace ID to link log entries.
@@ -28,6 +29,7 @@ module Trailer
 
       # See https://github.com/aws/aws-xray-sdk-ruby/blob/1869ca5/lib/aws-xray-sdk/model/segment.rb#L26-L30
       @trace_id = %(1-#{Time.now.to_i.to_s(16)}-#{SecureRandom.hex(12)})
+      @tags     = {} # This is used to accumulate tags in case we have an exception.
     end
 
     # Write the given hash to storage.
@@ -41,12 +43,14 @@ module Trailer
       data[:environment]  ||= Trailer.config.environment
       data[:host_name]    ||= Trailer.config.host_name
       data[:service_name] ||= Trailer.config.service_name
+      data                  = data.compact.merge(trace_id: trace_id)
 
-      storage.async.write(data.compact.merge(trace_id: trace_id))
+      storage.async.write(data)
+      @tags.merge!(data)
     end
 
     private
 
-    attr_accessor :storage, :trace_id
+    attr_accessor :storage, :tags, :trace_id
   end
 end

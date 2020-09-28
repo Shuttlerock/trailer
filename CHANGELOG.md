@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.1 - 2020-09-28
+
+### Bug Fixes
+
+* Fail gracefully if there's no trace in progress ([#5])
+
+[#5]: https://github.com/shuttlerock/trailer/pull/5
+
 ## 0.2.0 - 2020-09-28
 
 ### Features

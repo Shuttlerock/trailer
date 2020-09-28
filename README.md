@@ -149,7 +149,7 @@ end
 
 This will record `"event": "ArchiveJob"` instead of `"event": "ArchiveJob#perform"`. This is useful in situations where the method name doesn't provide any additional information (eg. background jobs always implement `perform`, and GraphQL resolvers implement `resolve`).
 
-The `trace_event` method is similar `trace_method` and `trace_class`, but it requires an event name to be passed as the first argument:
+The `trace_event` method is similar to `trace_method` and `trace_class`, but it requires an event name to be passed as the first argument:
 
 ```
 class PagesController < ApplicationController
@@ -290,7 +290,8 @@ class Order < ApplicationRecord
   after_update_commit :trace_state_change, if: -> { saved_change_to_state? }
 
   def trace_state_change
-    trace_class(self, state_was: state_was)
+    state_before, state_now = saved_change_to_state
+    trace_event('Order State Change', order_id: id, state_is: state_now, state_was: state_before)
   end
 end
 ```
@@ -306,7 +307,7 @@ use Trailer::Middleware::Rack
 
 ### Sidekiq
 
-If you are using Sidekiq, `Trailer::Middleware::Sidekiq` will be automatically added to the sidekiq middle chain for you. You can trace operations using the standard `Trailer::Concern` method:
+If you are using Rails with Sidekiq, `Trailer::Middleware::Sidekiq` will be automatically added to the sidekiq middle chain for you. You can trace operations using the standard `Trailer::Concern` method:
 
 ```
 class AuditJob < ApplicationJob

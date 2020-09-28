@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.0 - 2020-09-28
+
+### Features
+
+* Allow tracing without providing a block. ([#4])
+
+[#4]: https://github.com/shuttlerock/trailer/pull/4
+
 ## 0.1.5 - 2020-09-08
 
 ### Features

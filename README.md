@@ -281,6 +281,20 @@ def add(a, b)
 end
 ```
 
+You can use any of the trace methods without providing a block:
+
+```
+class Order < ApplicationRecord
+  include Trailer::Concern
+
+  after_update_commit :trace_state_change, if: -> { saved_change_to_state? }
+
+  def trace_state_change
+    trace_class(self, state_was: state_was)
+  end
+end
+```
+
 
 ### No Rails?
 

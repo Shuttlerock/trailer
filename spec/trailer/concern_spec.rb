@@ -145,6 +145,11 @@ RSpec.describe Trailer::Concern do
       subject.test_no_yield(Model.new)
       expect(store).to have_received(:write).with(hash_including(duration: 333_000))
     end
+
+    it 'fails gracefully if there is no trace in progress' do
+      RequestStore.store[:trailer] = nil
+      subject.test_event(Model.new)
+    end
   end
 
   describe '#trace_method' do

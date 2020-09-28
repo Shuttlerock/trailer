@@ -12,7 +12,7 @@ module Trailer
     #                                               instance, query, etc (eg. current_user, 'Article#submit', 'http://example.com/articles').
     # @param tags     Hash                        - Extra tags which should be tracked (eg. { method: 'GET' }).
     def trace_event(event, resource = nil, **tags, &block) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-      unless Trailer.enabled?
+      unless Trailer.enabled? && !RequestStore.store[:trailer].nil?
         return yield block if block_given?
 
         return

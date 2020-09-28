@@ -12,7 +12,11 @@ module Trailer
     #                                               instance, query, etc (eg. current_user, 'Article#submit', 'http://example.com/articles').
     # @param tags     Hash                        - Extra tags which should be tracked (eg. { method: 'GET' }).
     def trace_event(event, resource = nil, **tags, &block) # rubocop:disable Metrics/AbcSize, Metrics/CyclomaticComplexity, Metrics/PerceivedComplexity
-      return yield block unless Trailer.enabled?
+      unless Trailer.enabled?
+        return yield block if block_given?
+
+        return
+      end
 
       event = Trailer::Utility.resource_name(event) unless event.is_a?(String) || event.is_a?(Symbol)
 
@@ -49,7 +53,7 @@ module Trailer
 
       # Record how long the operation takes, in milliseconds.
       started_at      = Process.clock_gettime(Process::CLOCK_MONOTONIC)
-      result          = yield block
+      result          = yield block if block_given?
       tags[:duration] = ((Process.clock_gettime(Process::CLOCK_MONOTONIC) - started_at) * 1_000).ceil
 
       # Put the keys in alphabetical order, with the event and resource first.
@@ -69,7 +73,7 @@ module Trailer
     # @param tags     Hash                        - Extra tags which should be tracked (eg. { method: 'GET' }).
     def trace_class(resource = nil, **tags, &block)
       trace_event(self.class.name, resource, **tags) do
-        yield block
+        yield block if block_given?
       end
     end
 
@@ -84,7 +88,7 @@ module Trailer
       calling_klass  = self.class.name
       calling_method = caller(1..1).first[/`.*'/][1..-2]
       trace_event("#{calling_klass}##{calling_method}", resource, **tags) do
-        yield block
+        yield block if block_given?
       end
     end
   end

@@ -35,6 +35,10 @@ class Tester
     end
   end
 
+  def test_no_yield(resource)
+    trace_event(:save, resource, {})
+  end
+
   def current_member
     OpenStruct.new(id: 456)
   end
@@ -133,6 +137,12 @@ RSpec.describe Trailer::Concern do
     it 'records the duration of the trace' do
       allow(Process).to receive(:clock_gettime).and_return(123, 456)
       subject.test_event(Model.new)
+      expect(store).to have_received(:write).with(hash_including(duration: 333_000))
+    end
+
+    it 'does not require a block' do
+      allow(Process).to receive(:clock_gettime).and_return(456, 789)
+      subject.test_no_yield(Model.new)
       expect(store).to have_received(:write).with(hash_including(duration: 333_000))
     end
   end

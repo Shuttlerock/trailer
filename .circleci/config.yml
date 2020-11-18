@@ -2,6 +2,9 @@ defaults: &defaults
   working_directory: ~/trailer
   docker:
     - image: circleci/ruby:2.6-node
+      auth:
+        username: $DOCKERHUB_USERNAME
+        password: $DOCKERHUB_PASSWORD
       environment:
         RACK_ENV: test
 
@@ -98,19 +101,31 @@ workflows:
   version: 2
   build:
     jobs:
-      - checkout_code
+      - checkout_code:
+          context:
+            - docker-hub-creds
       - bundle_dependencies:
+          context:
+            - docker-hub-creds
           requires:
             - checkout_code
       - rspec_tests:
+          context:
+            - docker-hub-creds
           requires:
             - bundle_dependencies
       - rake_bundle_audit:
+          context:
+            - docker-hub-creds
           requires:
             - bundle_dependencies
       - rake_bundle_leak:
+          context:
+            - docker-hub-creds
           requires:
             - bundle_dependencies
       - rubocop_test:
+          context:
+            - docker-hub-creds
           requires:
             - bundle_dependencies

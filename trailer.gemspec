@@ -35,7 +35,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'request_store', '~> 1.2'
   spec.add_dependency 'request_store-sidekiq', '~> 0.1'
 
-  spec.add_development_dependency 'bundler', '~> 1.17'
+  spec.add_development_dependency 'bundler', '>= 1.17'
   spec.add_development_dependency 'bundler-audit', '~> 0.7'
   spec.add_development_dependency 'bundler-leak', '~> 0.2'
   spec.add_development_dependency 'dotenv', '~> 2.7'
